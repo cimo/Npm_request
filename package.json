@@ -1,0 +1,46 @@
+{
+    "name": "@cimo/request",
+    "version": "1.0.0",
+    "description": "Request management. Light, fast and secure.",
+    "author": "cimo",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/cimo/Request.git"
+    },
+    "scripts": {
+        "preinstall": "([ ! -f package-lock.json ] && npm install --package-lock-only --ignore-scripts --no-audit); npx npm-force-resolutions",
+        "check": "eslint . --fix",
+        "remove_dist": "node -e \"const fs = require('fs'); try{ fs.rmdirSync('./dist/', { recursive: true }) } catch{}; process.exit(0);\"",
+        "build": "npm run check && npm run remove_dist && tsc --build tsconfig.build.json",
+        "pack": "npm run build && npm pack"
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "@types/node": "18.14.4",
+        "@typescript-eslint/parser": "5.54.0",
+        "@typescript-eslint/eslint-plugin": "5.54.0",
+        "eslint": "8.35.0",
+        "eslint-plugin-prettier": "4.2.1",
+        "eslint-config-prettier": "8.8.0",
+        "prettier": "2.8.7",
+        "typescript": "4.9.4"
+    },
+    "resolutions": {
+        "node-fetch": "2.6.7",
+        "**/node-fetch": "2.6.7"
+    },
+    "files": [
+        "./dist/"
+    ],
+    "main": "./dist/Main.js",
+    "types": "./dist/Main.d.ts",
+    "keywords": [
+        "request",
+        "management",
+        "request management",
+        "nodejs",
+        "typescript",
+        "cimo"
+    ]
+}
