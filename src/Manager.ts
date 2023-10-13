@@ -1,112 +1,114 @@
 import * as Interface from "./Interface";
 
-let baseUrl: string;
-let timeout: number;
-let requestInterceptor: Interface.IrequestInterceptor | null;
-let responseInterceptor: Interface.IresponseInterceptor | null;
+export default class Manager {
+    private baseUrl: string;
+    private timeout: number;
+    private requestInterceptor: Interface.IrequestInterceptor | null;
+    private responseInterceptor: Interface.IresponseInterceptor | null;
 
-export const create = (baseUrlValue: string, timeoutValue: number) => {
-    baseUrl = baseUrlValue;
-    timeout = timeoutValue;
-    requestInterceptor = null;
-    responseInterceptor = null;
-};
-
-export const setRequestInterceptor = (callback: (config: RequestInit) => RequestInit) => {
-    requestInterceptor = callback;
-};
-
-export const setResponseInterceptor = (callback: (response: Response) => void) => {
-    responseInterceptor = callback;
-};
-
-export const post = <T>(partialUrl: string, config: RequestInit, bodyValue: Record<string, unknown> | FormData): Promise<T> => {
-    const isJson = JSON.stringify(bodyValue).length > 2 ? true : false;
-
-    if (requestInterceptor) {
-        config = requestInterceptor(config || {});
+    constructor(baseUrlValue: string, timeoutValue: number) {
+        this.baseUrl = baseUrlValue;
+        this.timeout = timeoutValue;
+        this.requestInterceptor = null;
+        this.responseInterceptor = null;
     }
 
-    return new Promise((resolve, reject) => {
-        const fetchConfig = {
-            ...config,
-            signal: null,
-            method: "POST",
-            headers: isJson ? { ...config.headers, "Content-Type": "application/json" } : config.headers,
-            body: isJson ? JSON.stringify(bodyValue) : (bodyValue as FormData)
-        } as RequestInit;
+    setRequestInterceptor = (callback: (config: RequestInit) => RequestInit) => {
+        this.requestInterceptor = callback;
+    };
 
-        if (timeout > 0) {
-            const controller = new AbortController();
+    setResponseInterceptor = (callback: (response: Response) => void) => {
+        this.responseInterceptor = callback;
+    };
 
-            setTimeout(() => {
-                controller.abort();
-            }, timeout);
+    post = <T>(partialUrl: string, config: RequestInit, bodyValue: Record<string, unknown> | FormData): Promise<T> => {
+        const isJson = JSON.stringify(bodyValue).length > 2 ? true : false;
 
-            fetchConfig.signal = controller.signal;
+        if (this.requestInterceptor) {
+            config = this.requestInterceptor(config || {});
         }
 
-        fetch(`${baseUrl}${partialUrl}`, fetchConfig)
-            .then((response) => {
-                if (responseInterceptor) {
-                    responseInterceptor(response);
-                }
+        return new Promise((resolve, reject) => {
+            const fetchConfig = {
+                ...config,
+                signal: null,
+                method: "POST",
+                headers: isJson ? { ...config.headers, "Content-Type": "application/json" } : config.headers,
+                body: isJson ? JSON.stringify(bodyValue) : (bodyValue as FormData)
+            } as RequestInit;
 
-                if (!response.ok) {
-                    reject(new Error(`Request failed with status: ${response.status}`));
-                }
+            if (this.timeout > 0) {
+                const controller = new AbortController();
 
-                return response.json();
-            })
-            .then((data: T) => {
-                resolve(data);
-            })
-            .catch((error) => {
-                reject(error);
-            });
-    });
-};
+                setTimeout(() => {
+                    controller.abort();
+                }, this.timeout);
 
-export const get = <T>(partialUrl: string, config: RequestInit): Promise<T> => {
-    if (requestInterceptor) {
-        config = requestInterceptor(config || {});
-    }
+                fetchConfig.signal = controller.signal;
+            }
 
-    return new Promise((resolve, reject) => {
-        const fetchConfig = {
-            ...config,
-            signal: null,
-            method: "POST",
-            headers: config.headers
-        } as RequestInit;
+            fetch(`${this.baseUrl}${partialUrl}`, fetchConfig)
+                .then((response) => {
+                    if (this.responseInterceptor) {
+                        this.responseInterceptor(response);
+                    }
 
-        if (timeout > 0) {
-            const controller = new AbortController();
+                    if (!response.ok) {
+                        reject(new Error(`Request failed with status: ${response.status}`));
+                    }
 
-            setTimeout(() => {
-                controller.abort();
-            }, timeout);
+                    return response.json();
+                })
+                .then((data: T) => {
+                    resolve(data);
+                })
+                .catch((error) => {
+                    reject(error);
+                });
+        });
+    };
 
-            fetchConfig.signal = controller.signal;
+    get = <T>(partialUrl: string, config: RequestInit): Promise<T> => {
+        if (this.requestInterceptor) {
+            config = this.requestInterceptor(config || {});
         }
 
-        fetch(`${baseUrl}${partialUrl}`, fetchConfig)
-            .then((response) => {
-                if (responseInterceptor) {
-                    responseInterceptor(response);
-                }
+        return new Promise((resolve, reject) => {
+            const fetchConfig = {
+                ...config,
+                signal: null,
+                method: "POST",
+                headers: config.headers
+            } as RequestInit;
 
-                if (!response.ok) {
-                    reject(new Error(`Request failed with status: ${response.status}`));
-                }
+            if (this.timeout > 0) {
+                const controller = new AbortController();
 
-                return response.json();
-            })
-            .then((data: T) => {
-                resolve(data);
-            })
-            .catch((error) => {
-                reject(error);
-            });
-    });
-};
+                setTimeout(() => {
+                    controller.abort();
+                }, this.timeout);
+
+                fetchConfig.signal = controller.signal;
+            }
+
+            fetch(`${this.baseUrl}${partialUrl}`, fetchConfig)
+                .then((response) => {
+                    if (this.responseInterceptor) {
+                        this.responseInterceptor(response);
+                    }
+
+                    if (!response.ok) {
+                        reject(new Error(`Request failed with status: ${response.status}`));
+                    }
+
+                    return response.json();
+                })
+                .then((data: T) => {
+                    resolve(data);
+                })
+                .catch((error) => {
+                    reject(error);
+                });
+        });
+    };
+}

@@ -19,13 +19,13 @@ Request management. Light, fast and secure.
 ```
 ...
 
-import * as Cr from "@cimo/request";
+import { Cr } from "@cimo/request";
 
 ...
 
-Cr.create("https://localhost", 30000);
+const cr = new Cr("https://localhost", 30000);
 
-Cr.setRequestInterceptor((config) => {
+cr.setRequestInterceptor((config) => {
     //...
 
     return {
@@ -36,7 +36,7 @@ Cr.setRequestInterceptor((config) => {
     };
 });
 
-Cr.setResponseInterceptor((response) => {
+cr.setResponseInterceptor((response) => {
     if (response.ok) {
         // Success
     } else {
@@ -55,7 +55,7 @@ const formData = new FormData();
 formData.append("token_api", "1234");
 formData.append("name", "test");
 
-Cr.post("/test_post", {}, formData) // Or use json data
+cr.post("/test_post", {}, formData) // Or use json data
     .then((data) => {
         // Response
     })
@@ -63,7 +63,7 @@ Cr.post("/test_post", {}, formData) // Or use json data
         // Error
     });
 
-Cr.post("/test_get", {})
+cr.get("/test_get", {})
     .then((data) => {
         // Response
     })
