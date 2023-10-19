@@ -31,6 +31,7 @@ cr.setRequestInterceptor((config) => {
     return {
         ...config,
         headers: {
+            ...config.headers,
             "Accept-Language": "en,ja;q=0.9"
         }
     };
@@ -70,6 +71,8 @@ cr.get("/test_get", {})
     .catch((error) => {
         // Error
     });
+
+// put, delete, patch
 
 ...
 
