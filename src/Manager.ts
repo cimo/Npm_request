@@ -54,7 +54,7 @@ export default class Manager {
                     }
 
                     if (!response.ok) {
-                        reject(new Error(`Request failed with status: ${response.status}`));
+                        reject(`Request failed with status: ${response.status}`);
                     }
 
                     return response.json();
@@ -62,8 +62,8 @@ export default class Manager {
                 .then((data: T) => {
                     resolve(data);
                 })
-                .catch((error) => {
-                    reject(error);
+                .catch((data: Error) => {
+                    reject(data);
                 });
         });
     };
