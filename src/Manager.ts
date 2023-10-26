@@ -1,3 +1,4 @@
+// Source
 import * as Interface from "./Interface";
 
 export default class Manager {
@@ -54,7 +55,7 @@ export default class Manager {
                     }
 
                     if (!response.ok) {
-                        reject(`Request failed with status: ${response.status}`);
+                        reject(`@cimo/request - Manager.ts - fetch() - Error: Request failed with status ${response.status}`);
                     }
 
                     return response.json();
@@ -98,7 +99,7 @@ export default class Manager {
                     }
 
                     if (!response.ok) {
-                        reject(new Error(`Request failed with status: ${response.status}`));
+                        reject(new Error(`@cimo/request - Manager.ts - fetch() - Error: Request failed with status ${response.status}`));
                     }
 
                     return response.json();
@@ -145,7 +146,7 @@ export default class Manager {
                     }
 
                     if (!response.ok) {
-                        reject(new Error(`Request failed with status: ${response.status}`));
+                        reject(new Error(`@cimo/request - Manager.ts - fetch() - Error: Request failed with status ${response.status}`));
                     }
 
                     return response.json();
@@ -189,7 +190,7 @@ export default class Manager {
                     }
 
                     if (!response.ok) {
-                        reject(new Error(`Request failed with status: ${response.status}`));
+                        reject(new Error(`@cimo/request - Manager.ts - fetch() - Error: Request failed with status ${response.status}`));
                     }
 
                     return response.json();
@@ -236,7 +237,7 @@ export default class Manager {
                     }
 
                     if (!response.ok) {
-                        reject(new Error(`Request failed with status: ${response.status}`));
+                        reject(new Error(`@cimo/request - Manager.ts - fetch() - Error: Request failed with status ${response.status}`));
                     }
 
                     return response.json();
