@@ -22,8 +22,29 @@ export default class Manager {
         this.responseInterceptor = callback;
     };
 
-    post = <T>(partialUrl: string, config: RequestInit, bodyValue: Record<string, unknown> | FormData): Promise<T> => {
+    post = <T>(partialUrl: string, config: RequestInit, bodyValue: Record<string, unknown> | FormData, conversion = false): Promise<T> => {
         const isFormData = bodyValue instanceof FormData ? true : false;
+
+        const data = {};
+        let contentTypeValue = "";
+        let body = {};
+
+        if (conversion && isFormData) {
+            const formData = bodyValue as FormData;
+
+            for (const item of formData) {
+                data[item[0]] = item[1];
+            }
+
+            contentTypeValue = "application/json";
+            body = JSON.stringify(data);
+        } else if (!conversion && isFormData) {
+            contentTypeValue = "multipart/form-data";
+            body = bodyValue as FormData;
+        } else if (!isFormData) {
+            contentTypeValue = "application/json";
+            body = JSON.stringify(data);
+        }
 
         if (this.requestInterceptor) {
             config = this.requestInterceptor(config || {});
@@ -34,9 +55,9 @@ export default class Manager {
                 ...config,
                 signal: null,
                 method: "POST",
-                headers: isFormData ? config.headers : { ...config.headers, "Content-Type": "application/json" },
-                body: isFormData ? (bodyValue as FormData) : JSON.stringify(bodyValue)
-            } as RequestInit;
+                headers: { ...config.headers, "Content-Type": contentTypeValue },
+                body: body
+            } as unknown as RequestInit;
 
             if (this.timeout > 0) {
                 const controller = new AbortController();
