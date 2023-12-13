@@ -55,14 +55,22 @@ const data = {
 const formData = new FormData();
 formData.append("token_api", "1234");
 formData.append("name", "test");
+// use formData with "multipart/form-data" or in case of file upload, just remove the headers content-type.
 
-cr.post("/test_post", {}, formData) // Or use json data
-    .then((data) => {
-        // Response
-    })
-    .catch((error) => {
-        // Error
-    });
+cr.post("/test_post",
+            {
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            },
+            data
+        )
+        .then((data) => {
+            // Response
+        })
+        .catch((error) => {
+            // Error
+        });
 
 cr.get("/test_get", {})
     .then((data) => {

@@ -92,7 +92,6 @@ export default class Manager {
         const isFormData = bodyValue instanceof FormData ? true : false;
 
         const data = {};
-        let contentTypeValue = "";
         let body = {};
 
         if (conversion && isFormData) {
@@ -102,13 +101,10 @@ export default class Manager {
                 data[item[0]] = item[1];
             }
 
-            contentTypeValue = "application/json";
             body = JSON.stringify(data);
         } else if (!conversion && isFormData) {
-            contentTypeValue = "multipart/form-data";
             body = bodyValue as FormData;
         } else if (!isFormData) {
-            contentTypeValue = "application/json";
             body = JSON.stringify(bodyValue);
         }
 
@@ -121,7 +117,7 @@ export default class Manager {
                 ...config,
                 signal: null,
                 method: method,
-                headers: { ...config.headers, "Content-Type": contentTypeValue },
+                headers: config.headers,
                 body: body
             } as unknown as RequestInit;
 
