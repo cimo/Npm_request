@@ -4,14 +4,14 @@ import * as Interface from "./Interface";
 export default class Manager {
     private baseUrl: string;
     private timeout: number;
-    private requestInterceptor: Interface.IrequestInterceptor | null;
-    private responseInterceptor: Interface.IresponseInterceptor | null;
+    private requestInterceptor: Interface.IrequestInterceptor | undefined;
+    private responseInterceptor: Interface.IresponseInterceptor | undefined;
 
-    constructor(baseUrlValue: string, timeoutValue: number) {
+    constructor(baseUrlValue: string, timeoutValue = 25000) {
         this.baseUrl = baseUrlValue;
         this.timeout = timeoutValue;
-        this.requestInterceptor = null;
-        this.responseInterceptor = null;
+        this.requestInterceptor = undefined;
+        this.responseInterceptor = undefined;
     }
 
     setRequestInterceptor = (callback: (config: RequestInit) => RequestInit) => {
@@ -30,7 +30,7 @@ export default class Manager {
         return new Promise((resolve, reject) => {
             const fetchConfig = {
                 ...config,
-                signal: null,
+                signal: undefined,
                 method: "GET",
                 headers: config.headers
             } as RequestInit;
@@ -115,7 +115,7 @@ export default class Manager {
         return new Promise((resolve, reject) => {
             const fetchConfig = {
                 ...config,
-                signal: null,
+                signal: undefined,
                 method: method,
                 headers: config.headers,
                 body: body
