@@ -1,4 +1,4 @@
 import Cr from "./Manager";
 
-export * as CrInterface from "./Interface";
+export * as CrModel from "./Model";
 export { Cr };

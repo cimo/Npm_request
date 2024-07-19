@@ -1,11 +1,11 @@
 // Source
-import * as Interface from "./Interface";
+import * as Model from "./Model";
 
 export default class Manager {
     private baseUrl: string;
     private timeout: number;
-    private requestInterceptor: Interface.IrequestInterceptor | undefined;
-    private responseInterceptor: Interface.IresponseInterceptor | undefined;
+    private requestInterceptor: Model.IrequestInterceptor | undefined;
+    private responseInterceptor: Model.IresponseInterceptor | undefined;
 
     constructor(baseUrlValue: string, timeoutValue = 25000) {
         this.baseUrl = baseUrlValue;
@@ -14,11 +14,11 @@ export default class Manager {
         this.responseInterceptor = undefined;
     }
 
-    setRequestInterceptor = (callback: (config: RequestInit) => RequestInit) => {
+    setRequestInterceptor = (callback: (config: RequestInit) => RequestInit): void => {
         this.requestInterceptor = callback;
     };
 
-    setResponseInterceptor = (callback: (response: Response) => void) => {
+    setResponseInterceptor = (callback: (response: Response) => void): void => {
         this.responseInterceptor = callback;
     };
 
