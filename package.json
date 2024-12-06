@@ -1,7 +1,7 @@
 {
     "name": "@cimo/request",
-    "version": "1.4.11",
-    "description": "Request management. Light, fast and secure.",
+    "version": "1.4.12",
+    "description": "Request api. Light, fast and secure.",
     "author": "cimo",
     "license": "MIT",
     "repository": {
@@ -32,8 +32,7 @@
     "types": "./dist/Main.d.ts",
     "keywords": [
         "request",
-        "management",
-        "request management",
+        "api",
         "nodejs",
         "typescript",
         "cimo",

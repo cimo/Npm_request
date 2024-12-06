@@ -1,6 +1,6 @@
 # Request
 
-Request management. Light, fast and secure.
+Npm package, request api. Light, fast and secure.
 Writed with native Typescript code and no dependencies are used.
 
 ## Pack
@@ -21,7 +21,7 @@ Writed with native Typescript code and no dependencies are used.
 
 ## Client
 
--   Index.ts
+-   Client.ts
 
 ```
 ...
