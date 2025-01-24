@@ -19,7 +19,7 @@ Writed with native Typescript code and no dependencies are used.
 
 1. Link for npm package -> https://www.npmjs.com/package/@cimo/request
 
-## info
+## Info
 
 Support the encoding if your application have some firewall like "azure waf".
 The request body will be fully encoded and from backend need be decoded and processed.

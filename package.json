@@ -1,6 +1,6 @@
 {
     "name": "@cimo/request",
-    "version": "1.5.13",
+    "version": "1.5.14",
     "description": "Request api. Light, fast and secure.",
     "author": "cimo",
     "license": "MIT",
