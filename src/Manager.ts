@@ -4,12 +4,14 @@ import * as Model from "./Model";
 export default class Manager {
     private baseUrl: string;
     private timeout: number;
+    private isEncoded: boolean;
     private requestInterceptor: Model.IrequestInterceptor | undefined;
     private responseInterceptor: Model.IresponseInterceptor | undefined;
 
-    constructor(baseUrlValue: string, timeoutValue = 25000) {
+    constructor(baseUrlValue: string, timeoutValue = 25000, isEncoded = false) {
         this.baseUrl = baseUrlValue;
         this.timeout = timeoutValue;
+        this.isEncoded = isEncoded;
         this.requestInterceptor = undefined;
         this.responseInterceptor = undefined;
     }
@@ -101,11 +103,23 @@ export default class Manager {
                 data[item[0]] = item[1];
             }
 
-            body = JSON.stringify(data);
+            if (!this.isEncoded) {
+                body = JSON.stringify(data);
+            } else {
+                const encodedData = window.btoa(encodeURIComponent(JSON.stringify(data)));
+
+                body = encodedData;
+            }
         } else if (!conversion && isFormData) {
             body = bodyValue as FormData;
         } else if (!isFormData) {
-            body = JSON.stringify(bodyValue);
+            if (!this.isEncoded) {
+                body = JSON.stringify(bodyValue);
+            } else {
+                const encodedData = window.btoa(encodeURIComponent(JSON.stringify(bodyValue)));
+
+                body = encodedData;
+            }
         }
 
         if (this.requestInterceptor) {
