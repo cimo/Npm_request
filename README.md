@@ -1,4 +1,4 @@
-# Request
+# Npm_request
 
 Npm package, request api. Light, fast and secure.
 Writed with native Typescript code and no dependencies are used.
