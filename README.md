@@ -32,7 +32,7 @@ By default is "false".
 ```
 ...
 
-import { Cr } from "@cimo/request";
+import { Cr } from "@cimo/request/dist/src/Main";
 
 ...
 
@@ -65,12 +65,7 @@ const data = {
     name: "test",
 };
 
-const formData = new FormData();
-formData.append("token_api", "1234");
-formData.append("name", "test");
-// use formData with "multipart/form-data" or in case of file upload, just remove the headers content-type.
-
-cr.post("/test_post",
+cr.post("/test_post_json",
             {
                 headers: {
                     "Content-Type": "application/json"
@@ -84,6 +79,30 @@ cr.post("/test_post",
         .catch((error) => {
             // Error
         });
+
+...
+
+const formData = new FormData();
+formData.append("token_api", "1234");
+formData.append("name", "test");
+// In case of file upload, just remove the headers content-type parameter.
+
+cr.post("/test_post_form-data",
+            {
+                headers: {
+                    "Content-Type": "multipart/form-data"
+                }
+            },
+            formData
+        )
+        .then((data) => {
+            // Response
+        })
+        .catch((error) => {
+            // Error
+        });
+
+...
 
 cr.get("/test_get", {})
     .then((data) => {

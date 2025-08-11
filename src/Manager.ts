@@ -8,82 +8,6 @@ export default class Manager {
     private requestInterceptor: Model.IrequestInterceptor | undefined;
     private responseInterceptor: Model.IresponseInterceptor | undefined;
 
-    constructor(baseUrlValue: string, timeoutValue = 25000, isEncoded = false) {
-        this.baseUrl = baseUrlValue;
-        this.timeout = timeoutValue;
-        this.isEncoded = isEncoded;
-        this.requestInterceptor = undefined;
-        this.responseInterceptor = undefined;
-    }
-
-    setRequestInterceptor = (callback: (config: RequestInit) => RequestInit): void => {
-        this.requestInterceptor = callback;
-    };
-
-    setResponseInterceptor = (callback: (response: Response) => void): void => {
-        this.responseInterceptor = callback;
-    };
-
-    get = <T>(partialUrl: string, config: RequestInit): Promise<T> => {
-        if (this.requestInterceptor) {
-            config = this.requestInterceptor(config || {});
-        }
-
-        return new Promise((resolve, reject) => {
-            const fetchConfig = {
-                ...config,
-                signal: undefined,
-                method: "GET",
-                headers: config.headers
-            } as RequestInit;
-
-            if (this.timeout > 0) {
-                const controller = new AbortController();
-
-                setTimeout(() => {
-                    controller.abort();
-                }, this.timeout);
-
-                fetchConfig.signal = controller.signal;
-            }
-
-            fetch(`${this.baseUrl}${partialUrl}`, fetchConfig)
-                .then((response) => {
-                    if (this.responseInterceptor) {
-                        this.responseInterceptor(response);
-                    }
-
-                    if (!response.ok) {
-                        reject(new Error(`@cimo/request - Manager.ts - fetch() - Error: Request failed with status ${response.status}`));
-                    }
-
-                    return response.json();
-                })
-                .then((response: T) => {
-                    resolve(response);
-                })
-                .catch((error: Error) => {
-                    reject(error);
-                });
-        });
-    };
-
-    post = <T>(partialUrl: string, config: RequestInit, bodyValue: Record<string, unknown> | FormData, conversion = false): Promise<T> => {
-        return this.send<T>("POST", partialUrl, config, bodyValue, conversion);
-    };
-
-    put = <T>(partialUrl: string, config: RequestInit, bodyValue: Record<string, unknown> | FormData, conversion = false): Promise<T> => {
-        return this.send<T>("PUT", partialUrl, config, bodyValue, conversion);
-    };
-
-    patch = <T>(partialUrl: string, config: RequestInit, bodyValue: Record<string, unknown> | FormData, conversion = false): Promise<T> => {
-        return this.send<T>("PATCH", partialUrl, config, bodyValue, conversion);
-    };
-
-    delete = <T>(partialUrl: string, config: RequestInit, bodyValue: Record<string, unknown> | FormData, conversion = false): Promise<T> => {
-        return this.send<T>("DELETE", partialUrl, config, bodyValue, conversion);
-    };
-
     private send = <T>(
         method: string,
         partialUrl: string,
@@ -93,8 +17,8 @@ export default class Manager {
     ): Promise<T> => {
         const isFormData = bodyValue instanceof FormData ? true : false;
 
-        const data = {};
-        let body = {};
+        const data: Record<string, unknown> = {};
+        let body: string | FormData | null = null;
 
         if (conversion && isFormData) {
             const formData = bodyValue as FormData;
@@ -127,13 +51,13 @@ export default class Manager {
         }
 
         return new Promise((resolve, reject) => {
-            const fetchConfig = {
+            const fetchConfigObject: RequestInit = {
                 ...config,
                 signal: undefined,
                 method: method,
                 headers: config.headers,
                 body: body
-            } as unknown as RequestInit;
+            };
 
             if (this.timeout > 0) {
                 const controller = new AbortController();
@@ -142,17 +66,17 @@ export default class Manager {
                     controller.abort();
                 }, this.timeout);
 
-                fetchConfig.signal = controller.signal;
+                fetchConfigObject.signal = controller.signal;
             }
 
-            fetch(`${this.baseUrl}${partialUrl}`, fetchConfig)
+            fetch(`${this.baseUrl}${partialUrl}`, fetchConfigObject)
                 .then((response) => {
                     if (this.responseInterceptor) {
                         this.responseInterceptor(response);
                     }
 
                     if (!response.ok) {
-                        reject(new Error(`@cimo/request - Manager.ts - fetch() - Error: Request failed with status ${response.status}`));
+                        reject(new Error(`@cimo/request - Manager.ts => fetch() - Error: Request failed with status ${response.status}`));
                     }
 
                     return response.json();
@@ -164,5 +88,81 @@ export default class Manager {
                     reject(error);
                 });
         });
+    };
+
+    constructor(baseUrlValue: string, timeoutValue = 25000, isEncoded = false) {
+        this.baseUrl = baseUrlValue;
+        this.timeout = timeoutValue;
+        this.isEncoded = isEncoded;
+        this.requestInterceptor = undefined;
+        this.responseInterceptor = undefined;
+    }
+
+    setRequestInterceptor = (callback: (config: RequestInit) => RequestInit): void => {
+        this.requestInterceptor = callback;
+    };
+
+    setResponseInterceptor = (callback: (response: Response) => void): void => {
+        this.responseInterceptor = callback;
+    };
+
+    get = <T>(partialUrl: string, config: RequestInit): Promise<T> => {
+        if (this.requestInterceptor) {
+            config = this.requestInterceptor(config || {});
+        }
+
+        return new Promise((resolve, reject) => {
+            const fetchConfigObject: RequestInit = {
+                ...config,
+                signal: undefined,
+                method: "GET",
+                headers: config.headers
+            };
+
+            if (this.timeout > 0) {
+                const controller = new AbortController();
+
+                setTimeout(() => {
+                    controller.abort();
+                }, this.timeout);
+
+                fetchConfigObject.signal = controller.signal;
+            }
+
+            fetch(`${this.baseUrl}${partialUrl}`, fetchConfigObject)
+                .then((response) => {
+                    if (this.responseInterceptor) {
+                        this.responseInterceptor(response);
+                    }
+
+                    if (!response.ok) {
+                        reject(new Error(`@cimo/request - Manager.ts => fetch() - Error: Request failed with status ${response.status}`));
+                    }
+
+                    return response.json();
+                })
+                .then((response: T) => {
+                    resolve(response);
+                })
+                .catch((error: Error) => {
+                    reject(error);
+                });
+        });
+    };
+
+    post = <T>(partialUrl: string, config: RequestInit, bodyValue: Record<string, unknown> | FormData, conversion = false): Promise<T> => {
+        return this.send<T>("POST", partialUrl, config, bodyValue, conversion);
+    };
+
+    put = <T>(partialUrl: string, config: RequestInit, bodyValue: Record<string, unknown> | FormData, conversion = false): Promise<T> => {
+        return this.send<T>("PUT", partialUrl, config, bodyValue, conversion);
+    };
+
+    patch = <T>(partialUrl: string, config: RequestInit, bodyValue: Record<string, unknown> | FormData, conversion = false): Promise<T> => {
+        return this.send<T>("PATCH", partialUrl, config, bodyValue, conversion);
+    };
+
+    delete = <T>(partialUrl: string, config: RequestInit, bodyValue: Record<string, unknown> | FormData, conversion = false): Promise<T> => {
+        return this.send<T>("DELETE", partialUrl, config, bodyValue, conversion);
     };
 }
