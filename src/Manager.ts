@@ -76,7 +76,7 @@ export default class Manager {
                     }
 
                     if (!response.ok) {
-                        reject(new Error(`@cimo/request - Manager.ts => fetch() - Error: Request failed with status ${response.status}`));
+                        reject(new Error(`@cimo/request - Manager.ts - fetch() => Request failed with status ${response.status}!`));
                     }
 
                     return response.json();
@@ -136,7 +136,7 @@ export default class Manager {
                     }
 
                     if (!response.ok) {
-                        reject(new Error(`@cimo/request - Manager.ts => fetch() - Error: Request failed with status ${response.status}`));
+                        reject(new Error(`@cimo/request - Manager.ts - fetch() => Request failed with status ${response.status}!`));
                     }
 
                     return response.json();
