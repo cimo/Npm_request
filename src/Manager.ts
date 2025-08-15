@@ -1,12 +1,12 @@
 // Source
-import * as Model from "./Model";
+import * as model from "./Model";
 
 export default class Manager {
     private baseUrl: string;
     private timeout: number;
     private isEncoded: boolean;
-    private requestInterceptor: Model.IrequestInterceptor | undefined;
-    private responseInterceptor: Model.IresponseInterceptor | undefined;
+    private requestInterceptor: model.IrequestInterceptor | undefined;
+    private responseInterceptor: model.IresponseInterceptor | undefined;
 
     private send = <T>(
         method: string,
