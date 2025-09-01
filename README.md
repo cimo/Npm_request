@@ -66,19 +66,19 @@ const data = {
 };
 
 cr.post("/test_post_json",
-            {
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            },
-            data
-        )
-        .then((data) => {
-            // Response
-        })
-        .catch((error) => {
-            // Error
-        });
+        {
+            headers: {
+                "Content-Type": "application/json"
+            }
+        },
+        data
+    )
+    .then((data) => {
+        // Response
+    })
+    .catch((error) => {
+        // Error
+    });
 
 ...
 
@@ -88,19 +88,19 @@ formData.append("name", "test");
 // In case of file upload, just remove the headers content-type parameter.
 
 cr.post("/test_post_form-data",
-            {
-                headers: {
-                    "Content-Type": "multipart/form-data"
-                }
-            },
-            formData
-        )
-        .then((data) => {
-            // Response
-        })
-        .catch((error) => {
-            // Error
-        });
+        {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        },
+        formData
+    )
+    .then((data) => {
+        // Response
+    })
+    .catch((error) => {
+        // Error
+    });
 
 ...
 
