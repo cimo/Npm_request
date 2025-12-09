@@ -1,4 +1,4 @@
-import Cr from "./Manager";
+import Cr from "./Manager.js";
 
-export * as CrModel from "./Model";
+export * as CrModel from "./Model.js";
 export { Cr };
