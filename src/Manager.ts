@@ -12,15 +12,15 @@ export default class Manager {
         method: string,
         partialUrl: string,
         config: RequestInit,
-        bodyValue: Record<string, unknown> | FormData,
-        conversion = false
+        bodyValue: Record<string, unknown> | FormData | string,
+        isConversion = false
     ): Promise<T> => {
         const isFormData = bodyValue instanceof FormData ? true : false;
 
         const data: Record<string, unknown> = {};
         let body: string | FormData | null = null;
 
-        if (conversion && isFormData) {
+        if (isFormData && isConversion) {
             const formData = bodyValue as FormData;
 
             for (const item of formData) {
@@ -34,7 +34,7 @@ export default class Manager {
 
                 body = encodedData;
             }
-        } else if (!conversion && isFormData) {
+        } else if (isFormData && !isConversion) {
             body = bodyValue as FormData;
         } else if (!isFormData) {
             if (!this.isEncoded) {
@@ -44,6 +44,8 @@ export default class Manager {
 
                 body = encodedData;
             }
+        } else if (typeof bodyValue === "string") {
+            body = bodyValue;
         }
 
         if (this.requestInterceptor) {
@@ -150,19 +152,29 @@ export default class Manager {
         });
     };
 
-    post = <T>(partialUrl: string, config: RequestInit, bodyValue: Record<string, unknown> | FormData, conversion = false): Promise<T> => {
-        return this.send<T>("POST", partialUrl, config, bodyValue, conversion);
+    post = <T>(partialUrl: string, config: RequestInit, bodyValue: Record<string, unknown> | FormData | string, isConversion = false): Promise<T> => {
+        return this.send<T>("POST", partialUrl, config, bodyValue, isConversion);
     };
 
-    put = <T>(partialUrl: string, config: RequestInit, bodyValue: Record<string, unknown> | FormData, conversion = false): Promise<T> => {
-        return this.send<T>("PUT", partialUrl, config, bodyValue, conversion);
+    put = <T>(partialUrl: string, config: RequestInit, bodyValue: Record<string, unknown> | FormData | string, isConversion = false): Promise<T> => {
+        return this.send<T>("PUT", partialUrl, config, bodyValue, isConversion);
     };
 
-    patch = <T>(partialUrl: string, config: RequestInit, bodyValue: Record<string, unknown> | FormData, conversion = false): Promise<T> => {
-        return this.send<T>("PATCH", partialUrl, config, bodyValue, conversion);
+    patch = <T>(
+        partialUrl: string,
+        config: RequestInit,
+        bodyValue: Record<string, unknown> | FormData | string,
+        isConversion = false
+    ): Promise<T> => {
+        return this.send<T>("PATCH", partialUrl, config, bodyValue, isConversion);
     };
 
-    delete = <T>(partialUrl: string, config: RequestInit, bodyValue: Record<string, unknown> | FormData, conversion = false): Promise<T> => {
-        return this.send<T>("DELETE", partialUrl, config, bodyValue, conversion);
+    delete = <T>(
+        partialUrl: string,
+        config: RequestInit,
+        bodyValue: Record<string, unknown> | FormData | string,
+        isConversion = false
+    ): Promise<T> => {
+        return this.send<T>("DELETE", partialUrl, config, bodyValue, isConversion);
     };
 }

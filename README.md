@@ -104,6 +104,25 @@ cr.post("/test_post_form-data",
 
 ...
 
+const data = "test";
+
+cr.post("/test_post_json",
+        {
+            headers: {
+                "Content-Type": "application/json"
+            }
+        },
+        data
+    )
+    .then((data) => {
+        // Response
+    })
+    .catch((error) => {
+        // Error
+    });
+
+...
+
 cr.get("/test_get", {})
     .then((data) => {
         // Response
