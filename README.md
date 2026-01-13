@@ -36,7 +36,7 @@ import { Cr } from "@cimo/request/dist/src/Main";
 
 ...
 
-const cr = new Cr("https://localhost", 25000, false);
+const cr = new Cr("https://localhost", 0, false);
 
 cr.setRequestInterceptor((config) => {
     //...
@@ -104,25 +104,6 @@ cr.post("/test_post_form-data",
 
 ...
 
-const data = "test";
-
-cr.post("/test_post_json",
-        {
-            headers: {
-                "Content-Type": "application/json"
-            }
-        },
-        data
-    )
-    .then((data) => {
-        // Response
-    })
-    .catch((error) => {
-        // Error
-    });
-
-...
-
 cr.get("/test_get", {})
     .then((data) => {
         // Response
@@ -134,5 +115,34 @@ cr.get("/test_get", {})
 // put, delete, patch
 
 ...
+
+const data = {
+    name: "test",
+};
+
+cr.stream("/test_stream",
+        {
+            headers: {
+                "Content-Type": "application/json"
+            }
+        },
+        data
+    )
+    .then(async (reader) => {
+        const decoder = new TextDecoder("utf-8");
+        let buffer = "";
+
+        while (true) {
+            const { value, done } = await reader.read();
+
+            ...
+
+            buffer += decoder.decode(value, { stream: true });
+            const lineList = buffer.split(/\r?\n/);
+            buffer = lineList.pop() || "";
+
+            ...
+        }
+    });
 
 ```

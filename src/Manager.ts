@@ -92,7 +92,7 @@ export default class Manager {
         });
     };
 
-    constructor(baseUrlValue: string, timeoutValue = 25000, isEncoded = false) {
+    constructor(baseUrlValue: string, timeoutValue = 0, isEncoded = false) {
         this.baseUrl = baseUrlValue;
         this.timeout = timeoutValue;
         this.isEncoded = isEncoded;
@@ -176,5 +176,22 @@ export default class Manager {
         isConversion = false
     ): Promise<T> => {
         return this.send<T>("DELETE", partialUrl, config, bodyValue, isConversion);
+    };
+
+    stream = async (
+        partialUrl: string,
+        config: RequestInit,
+        bodyValue: Record<string, unknown> | FormData | string
+    ): Promise<ReadableStreamDefaultReader<Uint8Array>> => {
+        const fetchConfigObject: RequestInit = {
+            ...config,
+            method: "POST",
+            headers: config.headers,
+            body: JSON.stringify(bodyValue)
+        };
+
+        const response = await fetch(`${this.baseUrl}${partialUrl}`, fetchConfigObject);
+
+        return response.body!.getReader();
     };
 }
