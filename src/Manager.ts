@@ -13,8 +13,9 @@ export default class Manager {
         partialUrl: string,
         config: RequestInit,
         bodyValue: Record<string, unknown> | FormData | string,
-        isConversion = false
-    ): Promise<T> => {
+        isConversion = false,
+        isFullResponse = false
+    ): Promise<T | model.Tresponse<T>> => {
         const isFormData = bodyValue instanceof FormData ? true : false;
 
         const data: Record<string, unknown> = {};
@@ -72,22 +73,50 @@ export default class Manager {
             }
 
             fetch(`${this.baseUrl}${partialUrl}`, fetchConfigObject)
-                .then((response) => {
+                .then(async (response) => {
+                    let result = "";
+
                     if (this.responseInterceptor) {
                         this.responseInterceptor(response);
                     }
 
                     if (!response.ok) {
                         reject(new Error(`@cimo/request - Manager.ts - fetch() => Request failed with status ${response.status}!`));
+
+                        return;
                     }
 
-                    return response.json();
-                })
-                .then((response: T) => {
-                    resolve(response);
+                    const contentType = response.headers.get("content-type") || "";
+
+                    if (contentType.includes("application/json")) {
+                        result = await response.json();
+                    } else {
+                        result = await response.text();
+                    }
+
+                    if (!isFullResponse) {
+                        resolve(result as T);
+
+                        return;
+                    } else {
+                        const resultFull: model.Tresponse<T> = {
+                            data: result as T,
+                            status: response.status,
+                            ok: response.ok,
+                            headers: response.headers,
+                            url: response.url,
+                            contentType
+                        };
+
+                        resolve(resultFull as T);
+
+                        return;
+                    }
                 })
                 .catch((error: Error) => {
                     reject(error);
+
+                    return;
                 });
         });
     };
@@ -108,7 +137,7 @@ export default class Manager {
         this.responseInterceptor = callback;
     };
 
-    get = <T>(partialUrl: string, config: RequestInit): Promise<T> => {
+    get = <T>(partialUrl: string, config: RequestInit, isFullResponse = false): Promise<T> => {
         if (this.requestInterceptor) {
             config = this.requestInterceptor(config || {});
         }
@@ -132,50 +161,92 @@ export default class Manager {
             }
 
             fetch(`${this.baseUrl}${partialUrl}`, fetchConfigObject)
-                .then((response) => {
+                .then(async (response) => {
+                    let result = "";
+
                     if (this.responseInterceptor) {
                         this.responseInterceptor(response);
                     }
 
                     if (!response.ok) {
                         reject(new Error(`@cimo/request - Manager.ts - fetch() => Request failed with status ${response.status}!`));
+
+                        return;
                     }
 
-                    return response.json();
-                })
-                .then((response: T) => {
-                    resolve(response);
+                    const contentType = response.headers.get("content-type") || "";
+
+                    if (contentType.includes("application/json")) {
+                        result = await response.json();
+                    } else {
+                        result = await response.text();
+                    }
+
+                    if (!isFullResponse) {
+                        resolve(result as T);
+
+                        return;
+                    } else {
+                        const resultFull: model.Tresponse<T> = {
+                            data: result as T,
+                            status: response.status,
+                            ok: response.ok,
+                            headers: response.headers,
+                            url: response.url,
+                            contentType
+                        };
+
+                        resolve(resultFull as T);
+
+                        return;
+                    }
                 })
                 .catch((error: Error) => {
                     reject(error);
+
+                    return;
                 });
         });
     };
 
-    post = <T>(partialUrl: string, config: RequestInit, bodyValue: Record<string, unknown> | FormData | string, isConversion = false): Promise<T> => {
-        return this.send<T>("POST", partialUrl, config, bodyValue, isConversion);
+    post = <T>(
+        partialUrl: string,
+        config: RequestInit,
+        bodyValue: Record<string, unknown> | FormData | string,
+        isConversion = false,
+        isFullResponse = false
+    ): Promise<T | model.Tresponse<T>> => {
+        return this.send<T>("POST", partialUrl, config, bodyValue, isConversion, isFullResponse);
     };
 
-    put = <T>(partialUrl: string, config: RequestInit, bodyValue: Record<string, unknown> | FormData | string, isConversion = false): Promise<T> => {
-        return this.send<T>("PUT", partialUrl, config, bodyValue, isConversion);
+    put = <T>(
+        partialUrl: string,
+        config: RequestInit,
+        bodyValue: Record<string, unknown> | FormData | string,
+        isConversion = false,
+        isFullResponse = false
+    ): Promise<T | model.Tresponse<T>> => {
+        return this.send<T>("PUT", partialUrl, config, bodyValue, isConversion, isFullResponse);
     };
 
     patch = <T>(
         partialUrl: string,
         config: RequestInit,
         bodyValue: Record<string, unknown> | FormData | string,
-        isConversion = false
-    ): Promise<T> => {
-        return this.send<T>("PATCH", partialUrl, config, bodyValue, isConversion);
+        isConversion = false,
+        isFullResponse = false
+    ): Promise<T | model.Tresponse<T>> => {
+        return this.send<T>("PATCH", partialUrl, config, bodyValue, isConversion, isFullResponse);
     };
 
     delete = <T>(
         partialUrl: string,
         config: RequestInit,
         bodyValue: Record<string, unknown> | FormData | string,
-        isConversion = false
-    ): Promise<T> => {
-        return this.send<T>("DELETE", partialUrl, config, bodyValue, isConversion);
+        isConversion = false,
+        isFullResponse = false
+    ): Promise<T | model.Tresponse<T>> => {
+        return this.send<T>("DELETE", partialUrl, config, bodyValue, isConversion, isFullResponse);
     };
 
     stream = async (
