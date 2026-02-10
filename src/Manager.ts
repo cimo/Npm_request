@@ -8,14 +8,14 @@ export default class Manager {
     private requestInterceptor: model.IrequestInterceptor | undefined;
     private responseInterceptor: model.IresponseInterceptor | undefined;
 
-    private send = <T>(
+    private send = <T, F extends boolean = false>(
         method: string,
         partialUrl: string,
         config: RequestInit,
         bodyValue: Record<string, unknown> | FormData | string,
         isConversion = false,
-        isFullResponse = false
-    ): Promise<T | model.Tresponse<T>> => {
+        isFullResponse: F = false as F
+    ): Promise<model.Tresponse<T, F>> => {
         const isFormData = bodyValue instanceof FormData ? true : false;
 
         const data: Record<string, unknown> = {};
@@ -74,7 +74,7 @@ export default class Manager {
 
             fetch(`${this.baseUrl}${partialUrl}`, fetchConfigObject)
                 .then(async (response) => {
-                    let result = "";
+                    let result: unknown;
 
                     if (this.responseInterceptor) {
                         this.responseInterceptor(response);
@@ -95,11 +95,11 @@ export default class Manager {
                     }
 
                     if (!isFullResponse) {
-                        resolve(result as T);
+                        resolve(result as model.Tresponse<T, F>);
 
                         return;
                     } else {
-                        const resultFull: model.Tresponse<T> = {
+                        const resultFull: model.Iresponse<T> = {
                             data: result as T,
                             status: response.status,
                             ok: response.ok,
@@ -108,7 +108,7 @@ export default class Manager {
                             contentType
                         };
 
-                        resolve(resultFull as T);
+                        resolve(resultFull as model.Tresponse<T, F>);
 
                         return;
                     }
@@ -137,7 +137,7 @@ export default class Manager {
         this.responseInterceptor = callback;
     };
 
-    get = <T>(partialUrl: string, config: RequestInit, isFullResponse = false): Promise<T> => {
+    get = <T, F extends boolean = false>(partialUrl: string, config: RequestInit, isFullResponse: F = false as F): Promise<model.Tresponse<T, F>> => {
         if (this.requestInterceptor) {
             config = this.requestInterceptor(config || {});
         }
@@ -162,7 +162,7 @@ export default class Manager {
 
             fetch(`${this.baseUrl}${partialUrl}`, fetchConfigObject)
                 .then(async (response) => {
-                    let result = "";
+                    let result: unknown;
 
                     if (this.responseInterceptor) {
                         this.responseInterceptor(response);
@@ -183,11 +183,11 @@ export default class Manager {
                     }
 
                     if (!isFullResponse) {
-                        resolve(result as T);
+                        resolve(result as model.Tresponse<T, F>);
 
                         return;
                     } else {
-                        const resultFull: model.Tresponse<T> = {
+                        const resultFull: model.Iresponse<T> = {
                             data: result as T,
                             status: response.status,
                             ok: response.ok,
@@ -196,7 +196,7 @@ export default class Manager {
                             contentType
                         };
 
-                        resolve(resultFull as T);
+                        resolve(resultFull as model.Tresponse<T, F>);
 
                         return;
                     }
@@ -209,44 +209,44 @@ export default class Manager {
         });
     };
 
-    post = <T>(
+    post = <T, F extends boolean = false>(
         partialUrl: string,
         config: RequestInit,
         bodyValue: Record<string, unknown> | FormData | string,
         isConversion = false,
-        isFullResponse = false
-    ): Promise<T | model.Tresponse<T>> => {
-        return this.send<T>("POST", partialUrl, config, bodyValue, isConversion, isFullResponse);
+        isFullResponse: F = false as F
+    ): Promise<model.Tresponse<T, F>> => {
+        return this.send<T, F>("POST", partialUrl, config, bodyValue, isConversion, isFullResponse);
     };
 
-    put = <T>(
+    put = <T, F extends boolean = false>(
         partialUrl: string,
         config: RequestInit,
         bodyValue: Record<string, unknown> | FormData | string,
         isConversion = false,
-        isFullResponse = false
-    ): Promise<T | model.Tresponse<T>> => {
-        return this.send<T>("PUT", partialUrl, config, bodyValue, isConversion, isFullResponse);
+        isFullResponse: F = false as F
+    ): Promise<model.Tresponse<T, F>> => {
+        return this.send<T, F>("PUT", partialUrl, config, bodyValue, isConversion, isFullResponse);
     };
 
-    patch = <T>(
+    patch = <T, F extends boolean = false>(
         partialUrl: string,
         config: RequestInit,
         bodyValue: Record<string, unknown> | FormData | string,
         isConversion = false,
-        isFullResponse = false
-    ): Promise<T | model.Tresponse<T>> => {
-        return this.send<T>("PATCH", partialUrl, config, bodyValue, isConversion, isFullResponse);
+        isFullResponse: F = false as F
+    ): Promise<model.Tresponse<T, F>> => {
+        return this.send<T, F>("PATCH", partialUrl, config, bodyValue, isConversion, isFullResponse);
     };
 
-    delete = <T>(
+    delete = <T, F extends boolean = false>(
         partialUrl: string,
         config: RequestInit,
         bodyValue: Record<string, unknown> | FormData | string,
         isConversion = false,
-        isFullResponse = false
-    ): Promise<T | model.Tresponse<T>> => {
-        return this.send<T>("DELETE", partialUrl, config, bodyValue, isConversion, isFullResponse);
+        isFullResponse: F = false as F
+    ): Promise<model.Tresponse<T, F>> => {
+        return this.send<T, F>("DELETE", partialUrl, config, bodyValue, isConversion, isFullResponse);
     };
 
     stream = async (

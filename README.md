@@ -21,9 +21,8 @@ Writed with native Typescript code and no dependencies are used.
 
 ## Info
 
-Support the encoding if your application have some firewall like "azure waf".
-The request body will be fully encoded and from backend need be decoded and processed.
-By default is "false".
+- The request body can be encoded (by default is "false").
+- The full response (status, header, ...) can be retrieved (by default is "false").
 
 ## Client
 
