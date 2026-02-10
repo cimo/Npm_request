@@ -19,11 +19,6 @@ Writed with native Typescript code and no dependencies are used.
 
 1. Link for npm package -> https://www.npmjs.com/package/@cimo/request
 
-## Info
-
-- The request body can be encoded (by default is "false").
-- The full response (status, header, ...) can be retrieved (by default is "false").
-
 ## Client
 
 - Client.ts

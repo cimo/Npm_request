@@ -5,38 +5,41 @@ export default class Manager {
     private baseUrl: string;
     private timeout: number;
     private isEncoded: boolean;
+
     private requestInterceptor: model.IrequestInterceptor | undefined;
     private responseInterceptor: model.IresponseInterceptor | undefined;
 
-    private send = <T, F extends boolean = false>(
+    private send = <T>(
         method: string,
         partialUrl: string,
         config: RequestInit,
         bodyValue: Record<string, unknown> | FormData | string,
-        isConversion = false,
-        isFullResponse: F = false as F
-    ): Promise<model.Tresponse<T, F>> => {
+        isFormDataConversion = false,
+        isFullResponse = false
+    ): Promise<T | model.Iresponse<T>> => {
         const isFormData = bodyValue instanceof FormData ? true : false;
 
         const data: Record<string, unknown> = {};
         let body: string | FormData | null = null;
 
-        if (isFormData && isConversion) {
-            const formData = bodyValue as FormData;
+        if (isFormData) {
+            if (isFormDataConversion) {
+                const formData = bodyValue as FormData;
 
-            for (const item of formData) {
-                data[item[0]] = item[1];
-            }
+                for (const item of formData) {
+                    data[item[0]] = item[1];
+                }
 
-            if (!this.isEncoded) {
-                body = JSON.stringify(data);
+                if (!this.isEncoded) {
+                    body = JSON.stringify(data);
+                } else {
+                    const encodedData = window.btoa(encodeURIComponent(JSON.stringify(data)));
+
+                    body = encodedData;
+                }
             } else {
-                const encodedData = window.btoa(encodeURIComponent(JSON.stringify(data)));
-
-                body = encodedData;
+                body = bodyValue as FormData;
             }
-        } else if (isFormData && !isConversion) {
-            body = bodyValue as FormData;
         } else if (!isFormData) {
             if (!this.isEncoded) {
                 body = JSON.stringify(bodyValue);
@@ -95,7 +98,7 @@ export default class Manager {
                     }
 
                     if (!isFullResponse) {
-                        resolve(result as model.Tresponse<T, F>);
+                        resolve(result as T);
 
                         return;
                     } else {
@@ -108,7 +111,7 @@ export default class Manager {
                             contentType
                         };
 
-                        resolve(resultFull as model.Tresponse<T, F>);
+                        resolve(resultFull);
 
                         return;
                     }
@@ -125,6 +128,7 @@ export default class Manager {
         this.baseUrl = baseUrlValue;
         this.timeout = timeoutValue;
         this.isEncoded = isEncoded;
+
         this.requestInterceptor = undefined;
         this.responseInterceptor = undefined;
     }
@@ -137,7 +141,7 @@ export default class Manager {
         this.responseInterceptor = callback;
     };
 
-    get = <T, F extends boolean = false>(partialUrl: string, config: RequestInit, isFullResponse: F = false as F): Promise<model.Tresponse<T, F>> => {
+    get = <T>(partialUrl: string, config: RequestInit, isFullResponse = false): Promise<T | model.Iresponse<T>> => {
         if (this.requestInterceptor) {
             config = this.requestInterceptor(config || {});
         }
@@ -183,7 +187,7 @@ export default class Manager {
                     }
 
                     if (!isFullResponse) {
-                        resolve(result as model.Tresponse<T, F>);
+                        resolve(result as T);
 
                         return;
                     } else {
@@ -196,7 +200,7 @@ export default class Manager {
                             contentType
                         };
 
-                        resolve(resultFull as model.Tresponse<T, F>);
+                        resolve(resultFull);
 
                         return;
                     }
@@ -209,45 +213,97 @@ export default class Manager {
         });
     };
 
-    post = <T, F extends boolean = false>(
+    post<T>(
         partialUrl: string,
         config: RequestInit,
         bodyValue: Record<string, unknown> | FormData | string,
-        isConversion = false,
-        isFullResponse: F = false as F
-    ): Promise<model.Tresponse<T, F>> => {
-        return this.send<T, F>("POST", partialUrl, config, bodyValue, isConversion, isFullResponse);
-    };
+        isFormDataConversion?: boolean
+    ): Promise<T>;
+    post<T>(
+        partialUrl: string,
+        config: RequestInit,
+        bodyValue: Record<string, unknown> | FormData | string,
+        isFormDataConversion: boolean,
+        isFullResponse: true
+    ): Promise<model.Iresponse<T>>;
+    post<T>(
+        partialUrl: string,
+        config: RequestInit,
+        bodyValue: Record<string, unknown> | FormData | string,
+        isFormDataConversion: boolean = false,
+        isFullResponse: boolean = false
+    ): Promise<unknown> {
+        return this.send<T>("POST", partialUrl, config, bodyValue, isFormDataConversion, isFullResponse);
+    }
 
-    put = <T, F extends boolean = false>(
+    put<T>(
         partialUrl: string,
         config: RequestInit,
         bodyValue: Record<string, unknown> | FormData | string,
-        isConversion = false,
-        isFullResponse: F = false as F
-    ): Promise<model.Tresponse<T, F>> => {
-        return this.send<T, F>("PUT", partialUrl, config, bodyValue, isConversion, isFullResponse);
-    };
+        isFormDataConversion?: boolean
+    ): Promise<T>;
+    put<T>(
+        partialUrl: string,
+        config: RequestInit,
+        bodyValue: Record<string, unknown> | FormData | string,
+        isFormDataConversion: boolean,
+        isFullResponse: true
+    ): Promise<model.Iresponse<T>>;
+    put<T>(
+        partialUrl: string,
+        config: RequestInit,
+        bodyValue: Record<string, unknown> | FormData | string,
+        isFormDataConversion: boolean = false,
+        isFullResponse: boolean = false
+    ): Promise<unknown> {
+        return this.send<T>("PUT", partialUrl, config, bodyValue, isFormDataConversion, isFullResponse);
+    }
 
-    patch = <T, F extends boolean = false>(
+    patch<T>(
         partialUrl: string,
         config: RequestInit,
         bodyValue: Record<string, unknown> | FormData | string,
-        isConversion = false,
-        isFullResponse: F = false as F
-    ): Promise<model.Tresponse<T, F>> => {
-        return this.send<T, F>("PATCH", partialUrl, config, bodyValue, isConversion, isFullResponse);
-    };
+        isFormDataConversion?: boolean
+    ): Promise<T>;
+    patch<T>(
+        partialUrl: string,
+        config: RequestInit,
+        bodyValue: Record<string, unknown> | FormData | string,
+        isFormDataConversion: boolean,
+        isFullResponse: true
+    ): Promise<model.Iresponse<T>>;
+    patch<T>(
+        partialUrl: string,
+        config: RequestInit,
+        bodyValue: Record<string, unknown> | FormData | string,
+        isFormDataConversion: boolean = false,
+        isFullResponse: boolean = false
+    ): Promise<unknown> {
+        return this.send<T>("PATCH", partialUrl, config, bodyValue, isFormDataConversion, isFullResponse);
+    }
 
-    delete = <T, F extends boolean = false>(
+    delete<T>(
         partialUrl: string,
         config: RequestInit,
         bodyValue: Record<string, unknown> | FormData | string,
-        isConversion = false,
-        isFullResponse: F = false as F
-    ): Promise<model.Tresponse<T, F>> => {
-        return this.send<T, F>("DELETE", partialUrl, config, bodyValue, isConversion, isFullResponse);
-    };
+        isFormDataConversion?: boolean
+    ): Promise<T>;
+    delete<T>(
+        partialUrl: string,
+        config: RequestInit,
+        bodyValue: Record<string, unknown> | FormData | string,
+        isFormDataConversion: boolean,
+        isFullResponse: true
+    ): Promise<model.Iresponse<T>>;
+    delete<T>(
+        partialUrl: string,
+        config: RequestInit,
+        bodyValue: Record<string, unknown> | FormData | string,
+        isFormDataConversion: boolean = false,
+        isFullResponse: boolean = false
+    ): Promise<unknown> {
+        return this.send<T>("DELETE", partialUrl, config, bodyValue, isFormDataConversion, isFullResponse);
+    }
 
     stream = async (
         partialUrl: string,
