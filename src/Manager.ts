@@ -89,7 +89,7 @@ export default class Manager {
                         return;
                     }
 
-                    const contentType = response.headers.get("content-type") || "";
+                    const contentType = response.headers.get("content-type") as string;
 
                     if (contentType.includes("application/json")) {
                         result = await response.json();
@@ -178,7 +178,7 @@ export default class Manager {
                         return;
                     }
 
-                    const contentType = response.headers.get("content-type") || "";
+                    const contentType = response.headers.get("content-type") as string;
 
                     if (contentType.includes("application/json")) {
                         result = await response.json();
