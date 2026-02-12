@@ -30,7 +30,7 @@ import { Cr } from "@cimo/request/dist/src/Main";
 
 ...
 
-const cr = new Cr("https://localhost", 0, false);
+const cr = new Cr("https://localhost");
 
 cr.setRequestInterceptor((config) => {
     //...
