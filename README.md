@@ -45,11 +45,15 @@ cr.setRequestInterceptor((config) => {
 });
 
 cr.setResponseInterceptor((response) => {
+    // ...
+
     if (response.ok) {
         // Success
     } else {
         // Fail
     }
+
+    return response;
 });
 
 ...
