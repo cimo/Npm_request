@@ -22,34 +22,32 @@ export default class Manager {
         const data: Record<string, unknown> = {};
         let body: string | FormData | null = null;
 
-        if (isFormData) {
-            if (isFormDataConversion) {
-                const formData = bodyValue as FormData;
-
-                for (const item of formData) {
-                    data[item[0]] = item[1];
-                }
-
-                if (!this.isEncoded) {
-                    body = JSON.stringify(data);
+        if (method !== "GET" && method !== "HEAD") {
+            if (isFormData) {
+                if (isFormDataConversion) {
+                    const formData = bodyValue as FormData;
+                    for (const item of formData) {
+                        data[item[0]] = item[1];
+                    }
+                    if (!this.isEncoded) {
+                        body = JSON.stringify(data);
+                    } else {
+                        const encodedData = window.btoa(encodeURIComponent(JSON.stringify(data)));
+                        body = encodedData;
+                    }
                 } else {
-                    const encodedData = window.btoa(encodeURIComponent(JSON.stringify(data)));
-
+                    body = bodyValue as FormData;
+                }
+            } else if (!isFormData) {
+                if (!this.isEncoded) {
+                    body = JSON.stringify(bodyValue);
+                } else {
+                    const encodedData = window.btoa(encodeURIComponent(JSON.stringify(bodyValue)));
                     body = encodedData;
                 }
-            } else {
-                body = bodyValue as FormData;
+            } else if (typeof bodyValue === "string") {
+                body = bodyValue;
             }
-        } else if (!isFormData) {
-            if (!this.isEncoded) {
-                body = JSON.stringify(bodyValue);
-            } else {
-                const encodedData = window.btoa(encodeURIComponent(JSON.stringify(bodyValue)));
-
-                body = encodedData;
-            }
-        } else if (typeof bodyValue === "string") {
-            body = bodyValue;
         }
 
         if (this.requestInterceptor) {
@@ -62,7 +60,7 @@ export default class Manager {
                 signal: undefined,
                 method: method,
                 headers: config.headers,
-                body: body
+                ...(method !== "GET" && method !== "HEAD" ? { body } : {})
             };
 
             if (this.timeout > 0) {
@@ -144,75 +142,7 @@ export default class Manager {
     get<T>(partialUrl: string, config: RequestInit): Promise<T>;
     get<T>(partialUrl: string, config: RequestInit, isFullResponse: true): Promise<model.Iresponse<T>>;
     get<T>(partialUrl: string, config: RequestInit, isFullResponse: boolean = false): Promise<unknown> {
-        if (this.requestInterceptor) {
-            config = this.requestInterceptor(config || {});
-        }
-
-        return new Promise((resolve, reject) => {
-            const fetchConfigObject: RequestInit = {
-                ...config,
-                signal: undefined,
-                method: "GET",
-                headers: config.headers
-            };
-
-            if (this.timeout > 0) {
-                const controller = new AbortController();
-
-                setTimeout(() => {
-                    controller.abort();
-                }, this.timeout);
-
-                fetchConfigObject.signal = controller.signal;
-            }
-
-            fetch(`${this.baseUrl}${partialUrl}`, fetchConfigObject)
-                .then(async (response) => {
-                    let result: unknown;
-
-                    if (this.responseInterceptor) {
-                        this.responseInterceptor(response);
-                    }
-
-                    if (!response.ok) {
-                        reject(new Error(`@cimo/request - Manager.ts - fetch() => Request failed with status ${response.status}!`));
-
-                        return;
-                    }
-
-                    const contentType = response.headers.get("content-type") as string;
-
-                    if (contentType.includes("application/json")) {
-                        result = await response.json();
-                    } else {
-                        result = await response.text();
-                    }
-
-                    if (!isFullResponse) {
-                        resolve(result as T);
-
-                        return;
-                    } else {
-                        const resultFull: model.Iresponse<T> = {
-                            data: result as T,
-                            status: response.status,
-                            ok: response.ok,
-                            headers: response.headers,
-                            url: response.url,
-                            contentType
-                        };
-
-                        resolve(resultFull);
-
-                        return;
-                    }
-                })
-                .catch((error: Error) => {
-                    reject(error);
-
-                    return;
-                });
-        });
+        return this.send<T>("GET", partialUrl, config, {}, false, isFullResponse);
     }
 
     post<T>(
