@@ -141,7 +141,9 @@ export default class Manager {
         this.responseInterceptor = callback;
     };
 
-    get = <T>(partialUrl: string, config: RequestInit, isFullResponse = false): Promise<T | model.Iresponse<T>> => {
+    get<T>(partialUrl: string, config: RequestInit): Promise<T>;
+    get<T>(partialUrl: string, config: RequestInit, isFullResponse: true): Promise<model.Iresponse<T>>;
+    get<T>(partialUrl: string, config: RequestInit, isFullResponse: boolean = false): Promise<unknown> {
         if (this.requestInterceptor) {
             config = this.requestInterceptor(config || {});
         }
@@ -211,7 +213,7 @@ export default class Manager {
                     return;
                 });
         });
-    };
+    }
 
     post<T>(
         partialUrl: string,
