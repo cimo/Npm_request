@@ -87,9 +87,9 @@ export default class Manager {
                         return;
                     }
 
-                    const contentType = response.headers.get("content-type") as string;
+                    const contentType = response.headers.get("content-type");
 
-                    if (contentType.includes("application/json")) {
+                    if (contentType && contentType.includes("application/json")) {
                         result = await response.json();
                     } else {
                         result = await response.text();
@@ -106,7 +106,7 @@ export default class Manager {
                             ok: response.ok,
                             headers: response.headers,
                             url: response.url,
-                            contentType
+                            contentType: contentType ? contentType : ""
                         };
 
                         resolve(resultFull);

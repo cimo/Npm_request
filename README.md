@@ -74,7 +74,7 @@ cr.post("/test_post_json",
     .then((data) => {
         // Response
     })
-    .catch((error) => {
+    .catch((error: Error) => {
         // Error
     });
 
@@ -96,7 +96,7 @@ cr.post("/test_post_form-data",
     .then((data) => {
         // Response
     })
-    .catch((error) => {
+    .catch((error: Error) => {
         // Error
     });
 
@@ -106,7 +106,7 @@ cr.get("/test_get", {})
     .then((data) => {
         // Response
     })
-    .catch((error) => {
+    .catch((error: Error) => {
         // Error
     });
 
