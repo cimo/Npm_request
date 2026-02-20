@@ -19,34 +19,40 @@ export default class Manager {
     ): Promise<T | model.Iresponse<T>> => {
         const isFormData = bodyValue instanceof FormData ? true : false;
 
-        const data: Record<string, unknown> = {};
-        let body: string | FormData | null = null;
+        let body: FormData | string | null = null;
 
         if (method !== "GET" && method !== "HEAD") {
             if (isFormData) {
                 if (isFormDataConversion) {
+                    const dataObject: Record<string, unknown> = {};
                     const formData = bodyValue as FormData;
+
                     for (const item of formData) {
-                        data[item[0]] = item[1];
+                        dataObject[item[0]] = item[1];
                     }
+
                     if (!this.isEncoded) {
-                        body = JSON.stringify(data);
+                        body = JSON.stringify(dataObject);
                     } else {
-                        const encodedData = window.btoa(encodeURIComponent(JSON.stringify(data)));
-                        body = encodedData;
+                        body = window.btoa(encodeURIComponent(JSON.stringify(dataObject)));
                     }
                 } else {
                     body = bodyValue as FormData;
                 }
-            } else if (!isFormData) {
+            } else {
                 if (!this.isEncoded) {
-                    body = JSON.stringify(bodyValue);
+                    if (typeof bodyValue === "string") {
+                        body = bodyValue;
+                    } else {
+                        body = JSON.stringify(bodyValue);
+                    }
                 } else {
-                    const encodedData = window.btoa(encodeURIComponent(JSON.stringify(bodyValue)));
-                    body = encodedData;
+                    if (typeof bodyValue === "string") {
+                        body = window.btoa(encodeURIComponent(bodyValue));
+                    } else {
+                        body = window.btoa(encodeURIComponent(JSON.stringify(bodyValue)));
+                    }
                 }
-            } else if (typeof bodyValue === "string") {
-                body = bodyValue;
             }
         }
 
