@@ -121,7 +121,7 @@ export default class Manager {
                     }
                 })
                 .catch((error: Error) => {
-                    reject(error);
+                    reject(new Error(error.message));
 
                     return;
                 });
