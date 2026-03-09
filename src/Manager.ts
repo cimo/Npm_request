@@ -257,6 +257,10 @@ export default class Manager {
 
         const response = await fetch(`${this.baseUrl}${partialUrl}`, fetchConfigObject);
 
-        return response.body!.getReader();
+        if (response.body) {
+            return response.body.getReader();
+        }
+
+        throw new Error("@cimo/request - Manager.ts - stream() => Response body is null or undefined!");
     };
 }

@@ -83,7 +83,7 @@ cr.post("/test_post_json",
 const formData = new FormData();
 formData.append("token_api", "1234");
 formData.append("name", "test");
-// In case of file upload, just remove the headers content-type parameter.
+// In case of file upload, just delete the headers content-type parameter.
 
 cr.post("/test_post_form-data",
         {
