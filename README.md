@@ -131,7 +131,7 @@ cr.stream("/test_stream",
 
             buffer += decoder.decode(value, { stream: true });
             const lineList = buffer.split(/\r?\n/);
-            buffer = lineList.pop() || "";
+            buffer = lineList.pop() as string;
 
             ...
         }

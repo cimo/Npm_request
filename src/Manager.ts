@@ -110,13 +110,9 @@ export default class Manager {
                     };
 
                     resolve(resultFull);
-
-                    return;
                 })
                 .catch((error: Error) => {
                     reject(new Error(error.message));
-
-                    return;
                 });
         });
     };
