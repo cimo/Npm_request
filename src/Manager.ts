@@ -23,10 +23,13 @@ export default class Manager {
         if (method !== "GET" && method !== "HEAD") {
             if (isFormData) {
                 if (isFormDataConversion) {
-                    const dataObject: Record<string, unknown> = {};
                     const formData = bodyValue as FormData;
+                    const formDataList = Array.from(formData);
+                    const dataObject: Record<string, unknown> = {};
 
-                    for (const item of formData) {
+                    for (let a = 0; a < formDataList.length; a++) {
+                        const item = formDataList[a];
+
                         dataObject[item[0]] = item[1];
                     }
 
@@ -192,6 +195,6 @@ export default class Manager {
             return response.body.getReader();
         }
 
-        throw new Error("@cimo/request - Manager.ts - stream() => Response body is null or undefined!");
+        throw new Error("@cimo/request - Manager.ts - stream() => Response body is null!");
     };
 }
