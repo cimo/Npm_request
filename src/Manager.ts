@@ -9,7 +9,7 @@ export default class Manager {
     private requestInterceptor: model.IrequestInterceptor | undefined;
     private responseInterceptor: model.IresponseInterceptor | undefined;
 
-    private send = <T>(
+    private send = async <T>(
         method: string,
         partialUrl: string,
         config: RequestInit,
@@ -29,7 +29,6 @@ export default class Manager {
 
                     for (let a = 0; a < formDataList.length; a++) {
                         const item = formDataList[a];
-
                         dataObject[item[0]] = item[1];
                     }
 
@@ -43,17 +42,12 @@ export default class Manager {
                 }
             } else {
                 if (!this.isEncoded) {
-                    if (typeof bodyValue === "string") {
-                        body = bodyValue;
-                    } else {
-                        body = JSON.stringify(bodyValue);
-                    }
+                    body = typeof bodyValue === "string" ? bodyValue : JSON.stringify(bodyValue);
                 } else {
-                    if (typeof bodyValue === "string") {
-                        body = window.btoa(encodeURIComponent(bodyValue));
-                    } else {
-                        body = window.btoa(encodeURIComponent(JSON.stringify(bodyValue)));
-                    }
+                    body =
+                        typeof bodyValue === "string"
+                            ? window.btoa(encodeURIComponent(bodyValue))
+                            : window.btoa(encodeURIComponent(JSON.stringify(bodyValue)));
                 }
             }
         }
@@ -62,62 +56,48 @@ export default class Manager {
             config = this.requestInterceptor(config || {});
         }
 
-        return new Promise((resolve, reject) => {
-            const fetchConfigObject: RequestInit = {
-                ...config,
-                signal: undefined,
-                method: method,
-                headers: config.headers,
-                ...(method !== "GET" && method !== "HEAD" ? { body } : {})
-            };
+        const fetchConfigObject: RequestInit = {
+            ...config,
+            signal: undefined,
+            method: method,
+            headers: config.headers,
+            ...(method !== "GET" && method !== "HEAD" ? { body } : {})
+        };
 
-            if (this.timeout > 0) {
-                const controller = new AbortController();
+        if (this.timeout > 0) {
+            const controller = new AbortController();
+            setTimeout(() => controller.abort(), this.timeout);
+            fetchConfigObject.signal = controller.signal;
+        }
 
-                setTimeout(() => {
-                    controller.abort();
-                }, this.timeout);
+        const response = await fetch(`${this.baseUrl}${partialUrl}`, fetchConfigObject);
 
-                fetchConfigObject.signal = controller.signal;
-            }
+        if (this.responseInterceptor) {
+            this.responseInterceptor(response);
+        }
 
-            fetch(`${this.baseUrl}${partialUrl}`, fetchConfigObject)
-                .then(async (response) => {
-                    let result: unknown;
+        if (!response.ok) {
+            throw new Error(`Request failed with status ${response.status}!`);
+        }
 
-                    if (this.responseInterceptor) {
-                        this.responseInterceptor(response);
-                    }
+        const contentType = response.headers.get("content-type");
 
-                    if (!response.ok) {
-                        reject(new Error(`@cimo/request - Manager.ts - fetch() => Request failed with status ${response.status}!`));
+        let data: unknown;
 
-                        return;
-                    }
+        if (contentType && contentType.includes("application/json")) {
+            data = await response.json();
+        } else {
+            data = await response.text();
+        }
 
-                    const contentType = response.headers.get("content-type");
-
-                    if (contentType && contentType.includes("application/json")) {
-                        result = await response.json();
-                    } else {
-                        result = await response.text();
-                    }
-
-                    const resultFull: model.Iresponse<T> = {
-                        data: result as T,
-                        status: response.status,
-                        ok: response.ok,
-                        headers: response.headers,
-                        url: response.url,
-                        contentType: contentType ? contentType : ""
-                    };
-
-                    resolve(resultFull);
-                })
-                .catch((error: Error) => {
-                    reject(new Error(error.message));
-                });
-        });
+        return {
+            data: data as T,
+            status: response.status,
+            ok: response.ok,
+            headers: response.headers,
+            url: response.url,
+            contentType: contentType || ""
+        };
     };
 
     constructor(baseUrlValue: string, timeoutValue = 0, isEncoded = false) {
