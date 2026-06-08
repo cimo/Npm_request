@@ -25,7 +25,7 @@ export default class Manager {
                 if (isFormDataConversion) {
                     const formData = bodyValue as FormData;
                     const formDataList = Array.from(formData);
-                    const dataObject: Record<string, unknown> = {};
+                    const dataObject = {} as Record<string, unknown>;
 
                     for (let a = 0; a < formDataList.length; a++) {
                         const item = formDataList[a];
