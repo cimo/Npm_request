@@ -53,7 +53,7 @@ cr.setResponseInterceptor((response) => {
 ...
 
 const data = {
-    token_api: "1234",
+    token_api: "abc123",
     name: "test",
 };
 
@@ -75,7 +75,7 @@ cr.post("/test_post_json",
 ...
 
 const formData = new FormData();
-formData.append("token_api", "1234");
+formData.append("token_api", "abc123");
 formData.append("name", "test");
 // In case of file upload, just delete the headers content-type parameter.
 
