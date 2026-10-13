@@ -58,16 +58,17 @@ export default class Manager {
 
         const fetchConfigObject: RequestInit = {
             ...config,
-            signal: undefined,
             method: method,
             headers: config.headers,
             ...(method !== "GET" && method !== "HEAD" ? { body } : {})
         };
 
         if (this.timeout > 0) {
-            const controller = new AbortController();
-            setTimeout(() => controller.abort(), this.timeout);
-            fetchConfigObject.signal = controller.signal;
+            if (config.signal) {
+                fetchConfigObject.signal = AbortSignal.any([config.signal, AbortSignal.timeout(this.timeout)]);
+            } else {
+                fetchConfigObject.signal = AbortSignal.timeout(this.timeout);
+            }
         }
 
         const response = await fetch(`${this.baseUrl}${partialUrl}`, fetchConfigObject);
