@@ -107,7 +107,9 @@ cr.get("/test_get", {})
         // Response
     })
     .catch((error: Error) => {
-        // Error
+        if (error.cause === 401) {
+            // Unauthorized
+        }
     });
 
 // put, delete, patch

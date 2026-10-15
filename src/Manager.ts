@@ -78,7 +78,7 @@ export default class Manager {
         }
 
         if (!response.ok) {
-            throw new Error(`Request failed with status ${response.status}!`);
+            throw new Error(`Request failed with status ${response.status}!`, { cause: response.status });
         }
 
         const contentType = response.headers.get("content-type");
